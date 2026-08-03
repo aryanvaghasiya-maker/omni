@@ -9,5 +9,5 @@ RUN npm install -g omniroute
 # Expose the default port for Hugging Face Spaces
 EXPOSE 7860
 
-# Run omniroute on port 7860 without opening the browser
-CMD ["omniroute", "--port", "7860", "--no-open"]
+# Run omniroute using the PORT environment variable provided by Render
+CMD ["sh", "-c", "omniroute --port ${PORT:-7860} --no-open"]
