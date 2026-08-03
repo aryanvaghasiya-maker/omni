@@ -21,3 +21,4 @@ To connect your CLI tools (Cursor, Cline, Codex, etc.), point them to the API ba
 ## Environment Variables
 
 You may need to configure your API keys (like OpenAI, Anthropic, etc.) as **Secrets** in the Hugging Face Space settings. OmniRoute will read them from the environment.
+# omni
