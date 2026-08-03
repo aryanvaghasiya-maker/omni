@@ -6,6 +6,9 @@ WORKDIR /app
 # Install omniroute globally
 RUN npm install -g omniroute
 
+# Limit memory to 256MB to prevent hanging on Render's 512MB free tier
+ENV OMNIROUTE_MEMORY_MB=256
+
 
 
 # Expose the default port for Hugging Face Spaces
