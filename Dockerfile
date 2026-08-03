@@ -6,8 +6,7 @@ WORKDIR /app
 # Install omniroute globally
 RUN npm install -g omniroute
 
-# Set production environment
-ENV NODE_ENV=production
+
 
 # Expose the default port for Hugging Face Spaces
 EXPOSE 7860
