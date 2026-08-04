@@ -11,7 +11,7 @@ print("--- Initializing Free OmniRoute Environment ---")
 try:
     # Download Node 22 directly to a user-writable directory (/tmp)
     print("Downloading Node.js v22...")
-    subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xz -C /tmp", shell=True, check=True)
+    subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xf - -C /tmp", shell=True, check=True)
     
     # Add Node 22 to the current PATH
     os.environ["PATH"] = f"/tmp/node-v22.23.2-linux-x64/bin:{os.environ['PATH']}"
