@@ -5,6 +5,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 import httpx
 import gradio as gr
+import spaces
+
+@spaces.GPU
+def dummy_gpu_function():
+    pass
 
 import threading
 
