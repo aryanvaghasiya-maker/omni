@@ -11,7 +11,7 @@ print("--- Initializing Free OmniRoute Environment ---")
 try:
     # Download Node 22 directly to a user-writable directory (/tmp)
     print("Downloading Node.js v22...")
-    subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xf - -C /tmp", shell=True, check=True)
+    subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xJf - -C /tmp", shell=True, check=True)
     
     # Add Node 22 to the current PATH
     os.environ["PATH"] = f"/tmp/node-v22.23.2-linux-x64/bin:{os.environ['PATH']}"
@@ -66,9 +66,3 @@ with gr.Blocks() as demo:
 
 # Mount gradio to a subpath to prevent it from overlapping the root dashboard UI
 app = gr.mount_gradio_app(app, demo, path="/_hf_status")
-
-# Hugging Face looks for a 'demo' object to launch, but we launch our FastAPI app wrapper instead
-if __name__ == "__main__":
-    import uvicorn
-    # Expose the combined app on Hugging Face's mandatory web port 7860
-    uvicorn.run(app, host="0.0.0.0", port=7860)
