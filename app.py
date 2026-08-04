@@ -23,15 +23,15 @@ try:
 except Exception as e:
     print(f"⚠️ Installation step notice: {e}")
 
-# 2. Boot up OmniRoute in the background on private local port 8000
+# 2. Boot up OmniRoute in the background on private local port 8080
 print("Launching OmniRoute background engine...")
 env = os.environ.copy()
-env["PORT"] = "8000"  # Force OmniRoute to ignore HF's PORT=7860
-subprocess.Popen(["npx", "omniroute", "--port", "8000", "--no-open"], env=env)
+env["PORT"] = "8080"  # Force OmniRoute to ignore HF's PORT=7860
+subprocess.Popen(["./node_modules/.bin/omniroute", "--port", "8080", "--no-open"], env=env)
 
 # 3. Create a FastAPI web proxy to pipe the background dashboard to port 7860
 app = FastAPI()
-client = httpx.AsyncClient(base_url="http://127.0.0.1:8000")
+client = httpx.AsyncClient(base_url="http://127.0.0.1:8080")
 
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
 async def proxy_traffic(request: Request, path: str):
@@ -72,5 +72,7 @@ app = gr.mount_gradio_app(app, demo, path="/_hf_status")
 # Hugging Face looks for a 'demo' object to launch, but we launch our FastAPI app wrapper instead
 if __name__ == "__main__":
     import uvicorn
+    import time
+    time.sleep(2) # Give OmniRoute time to bind to 8080
     # Expose the combined app on Hugging Face's mandatory web port 7860
     uvicorn.run(app, host="0.0.0.0", port=7860)
