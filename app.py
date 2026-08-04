@@ -6,10 +6,18 @@ from fastapi.responses import StreamingResponse
 import httpx
 import gradio as gr
 
-# 1. Install OmniRoute locally during Space startup
+# 1. Install Node 22 and OmniRoute locally during Space startup
 print("--- Initializing Free OmniRoute Environment ---")
 try:
-    # Install the official omniroute tool locally to avoid root permission issues
+    # Download Node 22 directly to a user-writable directory (/tmp)
+    print("Downloading Node.js v22...")
+    subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xz -C /tmp", shell=True, check=True)
+    
+    # Add Node 22 to the current PATH
+    os.environ["PATH"] = f"/tmp/node-v22.23.2-linux-x64/bin:{os.environ['PATH']}"
+    
+    # Install the official omniroute tool locally
+    print("Installing OmniRoute...")
     subprocess.run("npm install omniroute", shell=True, check=True)
     print("✅ OmniRoute successfully installed via local NPM package.")
 except Exception as e:
