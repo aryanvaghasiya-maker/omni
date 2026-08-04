@@ -15,4 +15,4 @@ ENV HOST=0.0.0.0
 EXPOSE 7860
 
 # Run omniroute using the PORT environment variable provided by Render
-CMD omniroute --port ${PORT:-7860} --no-open
+CMD omniroute --port ${PORT:-7860} --log --no-open
