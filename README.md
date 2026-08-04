@@ -3,9 +3,8 @@ title: OmniRoute
 emoji: ⚡
 colorFrom: blue
 colorTo: purple
-sdk: gradio
-app_file: app.py
-pinned: false
+sdk: docker
+app_port: 7860
 ---
 
 # OmniRoute on Hugging Face Spaces
