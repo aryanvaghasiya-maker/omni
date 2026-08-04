@@ -1,18 +1,17 @@
+# Use Node 22 LTS to ensure compatibility and include build tools (Python/C++)
 FROM node:22
 
-# Create app directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install omniroute globally
+# Install omniroute globally via npm
 RUN npm install -g omniroute
 
 # Force binding to 0.0.0.0
 ENV HOST=0.0.0.0
 
-
-
-# Expose the default port for Hugging Face Spaces
+# Expose the default port
 EXPOSE 7860
 
-# Run omniroute using the PORT environment variable provided by Render
+# Start the OmniRoute server using the PORT environment variable
 CMD omniroute --port ${PORT:-7860} --log --no-open
