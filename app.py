@@ -70,6 +70,8 @@ async def proxy_traffic(request: Request, path: str):
 # 4. Attach a dummy Gradio mount point so Hugging Face registers the Space SDK happily
 with gr.Blocks() as demo:
     gr.Markdown("OmniRoute core initialized.")
+    btn = gr.Button("Wake up GPU")
+    btn.click(fn=dummy_gpu_function, inputs=[], outputs=[])
 
 # Mount gradio to a subpath to prevent it from overlapping the root dashboard UI
 app = gr.mount_gradio_app(app, demo, path="/_hf_status")
