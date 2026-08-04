@@ -6,28 +6,28 @@ from fastapi.responses import StreamingResponse
 import httpx
 import gradio as gr
 
-# 1. Install Node 22 and OmniRoute locally during Space startup
-print("--- Initializing Free OmniRoute Environment ---")
-try:
-    # Download Node 22 directly to a user-writable directory (/tmp)
-    print("Downloading Node.js v22...")
-    subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xJf - -C /tmp", shell=True, check=True)
-    
-    # Add Node 22 to the current PATH
-    os.environ["PATH"] = f"/tmp/node-v22.23.2-linux-x64/bin:{os.environ['PATH']}"
-    
-    # Install the official omniroute tool locally
-    print("Installing OmniRoute...")
-    subprocess.run("npm install omniroute", shell=True, check=True)
-    print("✅ OmniRoute successfully installed via local NPM package.")
-except Exception as e:
-    print(f"⚠️ Installation step notice: {e}")
+import threading
 
-# 2. Boot up OmniRoute in the background on private local port 8080
-print("Launching OmniRoute background engine...")
-env = os.environ.copy()
-env["PORT"] = "8080"  # Force OmniRoute to ignore HF's PORT=7860
-subprocess.Popen(["./node_modules/.bin/omniroute", "--port", "8080", "--no-open"], env=env)
+def setup_and_run_omniroute():
+    print("--- Initializing Free OmniRoute Environment ---")
+    try:
+        print("Downloading Node.js v22...")
+        subprocess.run("curl -fsSL https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz | tar -xJf - -C /tmp", shell=True, check=True)
+        os.environ["PATH"] = f"/tmp/node-v22.23.2-linux-x64/bin:{os.environ['PATH']}"
+        
+        print("Installing OmniRoute...")
+        subprocess.run("npm install omniroute", shell=True, check=True)
+        print("✅ OmniRoute successfully installed via local NPM package.")
+        
+        print("Launching OmniRoute background engine...")
+        env = os.environ.copy()
+        env["PORT"] = "8080"
+        subprocess.Popen(["./node_modules/.bin/omniroute", "--port", "8080", "--no-open"], env=env)
+    except Exception as e:
+        print(f"⚠️ Installation step notice: {e}")
+
+# Start the setup in a background thread so app.py loads instantly
+threading.Thread(target=setup_and_run_omniroute, daemon=True).start()
 
 # 3. Create a FastAPI web proxy to pipe the background dashboard to port 7860
 app = FastAPI()
