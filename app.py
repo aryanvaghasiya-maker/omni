@@ -6,20 +6,18 @@ from fastapi.responses import StreamingResponse
 import httpx
 import gradio as gr
 
-# 1. Install Node.js, NPM, and OmniRoute globally during Space startup
+# 1. Install OmniRoute locally during Space startup
 print("--- Initializing Free OmniRoute Environment ---")
 try:
-    # Install Node/NPM dependencies silently
-    subprocess.run("apt-get update && apt-get install -y nodejs npm", shell=True, check=True)
-    # Install the official omniroute tool
-    subprocess.run("npm install -g omniroute", shell=True, check=True)
-    print("✅ OmniRoute successfully installed via global NPM package.")
+    # Install the official omniroute tool locally to avoid root permission issues
+    subprocess.run("npm install omniroute", shell=True, check=True)
+    print("✅ OmniRoute successfully installed via local NPM package.")
 except Exception as e:
-    print(f"⚠️ Installation step notice (running user-space environment): {e}")
+    print(f"⚠️ Installation step notice: {e}")
 
 # 2. Boot up OmniRoute in the background on private local port 8000
 print("Launching OmniRoute background engine...")
-subprocess.Popen(["omniroute", "--port", "8000", "--no-open"])
+subprocess.Popen(["npx", "omniroute", "--port", "8000", "--no-open"])
 
 # 3. Create a FastAPI web proxy to pipe the background dashboard to port 7860
 app = FastAPI()
