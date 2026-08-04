@@ -1,0 +1,68 @@
+import os
+import subprocess
+import asyncio
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
+import httpx
+import gradio as gr
+
+# 1. Install Node.js, NPM, and OmniRoute globally during Space startup
+print("--- Initializing Free OmniRoute Environment ---")
+try:
+    # Install Node/NPM dependencies silently
+    subprocess.run("apt-get update && apt-get install -y nodejs npm", shell=True, check=True)
+    # Install the official omniroute tool
+    subprocess.run("npm install -g omniroute", shell=True, check=True)
+    print("✅ OmniRoute successfully installed via global NPM package.")
+except Exception as e:
+    print(f"⚠️ Installation step notice (running user-space environment): {e}")
+
+# 2. Boot up OmniRoute in the background on private local port 8000
+print("Launching OmniRoute background engine...")
+subprocess.Popen(["omniroute", "--port", "8000", "--no-open"])
+
+# 3. Create a FastAPI web proxy to pipe the background dashboard to port 7860
+app = FastAPI()
+client = httpx.AsyncClient(base_url="http://127.0.0.1:8000")
+
+@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
+async def proxy_traffic(request: Request, path: str):
+    """Intercepts HF Space URL requests and forwards them to the OmniRoute Dashboard"""
+    url = f"/{path}"
+    if request.query_params:
+        url += f"?{request.query_params}"
+        
+    headers = dict(request.headers)
+    # Clean up hosting specific headers to avoid loop blocks
+    headers.pop("host", None)
+    
+    # Read the request body payload
+    body = await request.body()
+    
+    # Forward the exact web request directly to the local OmniRoute server
+    req = client.build_request(
+        method=request.method,
+        url=url,
+        headers=headers,
+        content=body
+    )
+    res = await client.send(req, stream=True)
+    
+    return StreamingResponse(
+        res.aiter_raw(),
+        status_code=res.status_code,
+        headers=dict(res.headers)
+    )
+
+# 4. Attach a dummy Gradio mount point so Hugging Face registers the Space SDK happily
+with gr.Blocks() as demo:
+    gr.Markdown("OmniRoute core initialized.")
+
+# Mount gradio to a subpath to prevent it from overlapping the root dashboard UI
+app = gr.mount_gradio_app(app, demo, path="/_hf_status")
+
+# Hugging Face looks for a 'demo' object to launch, but we launch our FastAPI app wrapper instead
+if __name__ == "__main__":
+    import uvicorn
+    # Expose the combined app on Hugging Face's mandatory web port 7860
+    uvicorn.run(app, host="0.0.0.0", port=7860)
